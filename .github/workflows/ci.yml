@@ -86,5 +86,10 @@ jobs:
           -Dsonar.projectKey=theonaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
           -Dsonar.projectName=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
           -Dsonar.scm.provider=git
-          -Dsonar.sources=back/src/main,front/src
-          -Dsonar.tests=back/src/test,front/src/app/**/*.spec.ts
+          -Dsonar.sources=.
+          -Dsonar.inclusions=back/src/main/**/*,front/src/**/*
+          -Dsonar.tests=back/src/test,front/src/app
+          -Dsonar.test.inclusions=**/*.spec.ts,**/*Test.java
+          -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/**,**/coverage/**,**/.mvn/**,**/target/**
+          -Dsonar.java.binaries=back/target/classes
+          -Dsonar.java.test.binaries=back/target/test-classes
