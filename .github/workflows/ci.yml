@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main, dev ]
 
+# Environment variables needed for SonarCloud
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -61,3 +66,21 @@ jobs:
           front/coverage/
         retention-days: 5
         if-no-files-found: ignore
+        
+    # Generate LCOV report for frontend
+    - name: Generate LCOV report for SonarCloud
+      run: |
+        cd front
+        # Make sure the coverage directory exists
+        mkdir -p coverage
+        # If karma already generated LCOV, this step might be redundant
+        # But we ensure it's there with the right format
+        npm test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage || echo "Frontend tests already run"
+        
+    # SonarCloud Scan
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      with:
+        args: >
+          -Dsonar.organization=theonaulet
+          -Dsonar.projectKey=theonaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
