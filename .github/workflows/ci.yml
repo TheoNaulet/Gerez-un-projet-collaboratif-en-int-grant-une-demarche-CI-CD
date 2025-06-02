@@ -34,7 +34,7 @@ jobs:
     - name: Build and test backend
       run: |
         cd back
-        mvn clean test
+        mvn clean install
         echo "Backend tests completed"
         ls -la target/site/jacoco/ || echo "No JaCoCo report found"
     
