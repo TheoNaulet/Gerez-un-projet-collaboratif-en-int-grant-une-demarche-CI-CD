@@ -79,8 +79,12 @@ jobs:
         
     # SonarCloud Scan
     - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
+      uses: SonarSource/sonarqube-scan-action@v5.0.0
       with:
         args: >
           -Dsonar.organization=theonaulet
           -Dsonar.projectKey=theonaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
+          -Dsonar.projectName=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
+          -Dsonar.scm.provider=git
+          -Dsonar.sources=back/src/main,front/src
+          -Dsonar.tests=back/src/test,front/src/app/**/*.spec.ts
