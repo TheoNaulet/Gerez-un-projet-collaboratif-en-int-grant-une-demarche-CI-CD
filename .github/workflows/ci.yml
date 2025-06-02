@@ -21,10 +21,15 @@ jobs:
         distribution: 'temurin'
         cache: maven
     
+    - name: Setup Maven
+      uses: stCarolas/setup-maven@v4.5
+      with:
+        maven-version: '3.8.6'
+
     - name: Build and test backend
       run: |
         cd back
-        ./mvnw clean test
+        mvn clean test
         echo "Backend tests completed"
         ls -la target/site/jacoco/ || echo "No JaCoCo report found"
     
