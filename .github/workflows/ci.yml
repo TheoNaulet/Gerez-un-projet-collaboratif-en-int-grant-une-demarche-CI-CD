@@ -83,7 +83,7 @@ jobs:
       with:
         args: >
           -Dsonar.organization=theonaulet
-          -Dsonar.projectKey=theonaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
+          -Dsonar.projectKey=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
           -Dsonar.projectName=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
           -Dsonar.scm.provider=git
           -Dsonar.sources=.
