@@ -69,20 +69,20 @@ jobs:
       # Analyse SonarCloud
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
-        # with:
-        #   args: >
-        #     -Dsonar.organization=theonaulet
-        #     -Dsonar.projectKey=TheoNaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-        #     -Dsonar.projectName=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-        #     -Dsonar.scm.provider=git
-        #     -Dsonar.sources=.
-        #     -Dsonar.inclusions=back/src/main/**/*,front/src/**/*
-        #     -Dsonar.tests=back/src/test,front/src/app
-        #     -Dsonar.test.inclusions=**/*.spec.ts,**/*Test.java
-        #     -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/**,**/coverage/**,**/.mvn/**,**/target/**
-        #     -Dsonar.java.binaries=back/target/classes
-        #     -Dsonar.java.test.binaries=back/target/test-classes
-        #     -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+        with:
+          args: >
+            -Dsonar.organization=theonaulet
+            -Dsonar.projectKey=TheoNaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
+            -Dsonar.projectName=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
+            -Dsonar.scm.provider=git
+            -Dsonar.sources=.
+            -Dsonar.inclusions=back/src/main/**/*,front/src/**/*
+            -Dsonar.tests=back/src/test,front/src/app
+            -Dsonar.test.inclusions=**/*.spec.ts,**/*Test.java
+            -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/**,**/coverage/**,**/.mvn/**,**/target/**
+            -Dsonar.java.binaries=back/target/classes
+            -Dsonar.java.test.binaries=back/target/test-classes
+            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
 
   push-docker-images:
     needs: build-and-test
