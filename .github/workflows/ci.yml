@@ -82,7 +82,10 @@ jobs:
             -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/**,**/coverage/**,**/.mvn/**,**/target/**
             -Dsonar.java.binaries=back/target/classes
             -Dsonar.java.test.binaries=back/target/test-classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
             -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+            -Dsonar.typescript.lcov.reportPaths=front/coverage/lcov.info
+            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*Test.java,**/test/**
 
   push-docker-images:
     needs: build-and-test
