@@ -83,6 +83,7 @@ jobs:
             -Dsonar.java.binaries=back/target/classes
             -Dsonar.java.test.binaries=back/target/test-classes
             -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+            -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
 
   push-docker-images:
     needs: build-and-test
