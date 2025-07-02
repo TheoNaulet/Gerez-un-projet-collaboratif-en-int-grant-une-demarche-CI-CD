@@ -55,7 +55,18 @@ jobs:
           npm run build --if-present
           npm test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
           echo "Frontend tests completed"
-          ls -la coverage/ || echo "No coverage report found"
+          ls -la coverage/
+          cat coverage/lcov.info || echo "Cannot display LCOV report"
+          # Make sure the report is in the correct format and location
+          if [ -f "coverage/lcov.info" ]; then
+            echo "LCOV report found - ensuring proper format"
+            # Create a symbolic link in case SonarCloud is looking in a different location
+            mkdir -p coverage/lcov-report
+            cp -f coverage/lcov.info .
+          else
+            echo "ERROR: LCOV report not found!"
+            exit 1
+          fi
 
       # Archive reports
       - name: Archive test results
@@ -69,6 +80,26 @@ jobs:
           retention-days: 5
           if-no-files-found: ignore
 
+      - name: Debug coverage reports
+        run: |
+          echo "Checking coverage reports..."
+          [ -f "back/target/site/jacoco/jacoco.xml" ] && echo "Backend coverage report exists" || echo "Backend coverage report missing"
+          [ -f "front/coverage/lcov.info" ] && echo "Frontend coverage report exists" || echo "Frontend coverage report missing"
+          
+      - name: Prepare for SonarCloud scan
+        run: |
+          echo "Ensuring coverage reports are ready for SonarCloud..."
+          # Verify frontend coverage files
+          echo "Frontend coverage report location:"
+          find front -name "lcov.info" | xargs ls -la
+          # Copy frontend coverage report to root if needed for better detection
+          if [ -f "front/coverage/lcov.info" ]; then
+            echo "Copying frontend LCOV report to multiple locations to ensure detection"
+            cp front/coverage/lcov.info .
+            mkdir -p coverage
+            cp front/coverage/lcov.info coverage/
+          fi
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         with:
@@ -76,6 +107,9 @@ jobs:
             -Dsonar.organization=theonaulet
             -Dsonar.projectKey=TheoNaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
             -Dsonar.projectName=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
+            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info,lcov.info,coverage/lcov.info
+            -Dsonar.typescript.lcov.reportPaths=front/coverage/lcov.info,lcov.info,coverage/lcov.info
+            -Dsonar.verbose=true
 
   push-docker-images:
     needs: build-and-test
