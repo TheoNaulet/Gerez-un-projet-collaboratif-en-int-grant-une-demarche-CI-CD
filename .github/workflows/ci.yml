@@ -15,7 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Récupère tout l'historique pour les analyses SonarCloud
 
       # Backend
       - name: Set up JDK 11
@@ -66,7 +69,6 @@ jobs:
           retention-days: 5
           if-no-files-found: ignore
 
-      # Analyse SonarCloud
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         with:
@@ -74,18 +76,6 @@ jobs:
             -Dsonar.organization=theonaulet
             -Dsonar.projectKey=TheoNaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
             -Dsonar.projectName=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-            -Dsonar.scm.provider=git
-            -Dsonar.sources=.
-            -Dsonar.inclusions=back/src/main/**/*,front/src/**/*
-            -Dsonar.tests=back/src/test,front/src/app
-            -Dsonar.test.inclusions=**/*.spec.ts,**/*Test.java
-            -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/**,**/coverage/**,**/.mvn/**,**/target/**
-            -Dsonar.java.binaries=back/target/classes
-            -Dsonar.java.test.binaries=back/target/test-classes
-            -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
-            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
-            -Dsonar.typescript.lcov.reportPaths=front/coverage/lcov.info
-            -Dsonar.coverage.exclusions=**/*.spec.ts,**/*Test.java,**/test/**
 
   push-docker-images:
     needs: build-and-test
@@ -93,7 +83,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Récupère tout l'historique
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
