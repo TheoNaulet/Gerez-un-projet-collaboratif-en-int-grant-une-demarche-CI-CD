@@ -130,6 +130,14 @@ jobs:
           echo "Final LCOV locations:"
           find . -name "lcov.info" | sort
 
+      - name: Fix lcov path for Angular
+        run: |
+          echo "Checking and copying lcov.info from Angular"
+          if [ -f "front/coverage/bobapp/lcov.info" ]; then
+            cp front/coverage/bobapp/lcov.info front/coverage/lcov.info
+            echo "Copied lcov.info to front/coverage/lcov.info"
+          fi
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         with:
@@ -137,8 +145,8 @@ jobs:
             -Dsonar.organization=theonaulet
             -Dsonar.projectKey=TheoNaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
             -Dsonar.projectName=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info,lcov.info,coverage/lcov.info
-            -Dsonar.typescript.lcov.reportPaths=front/coverage/lcov.info,lcov.info,coverage/lcov.info
+            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+            -Dsonar.typescript.lcov.reportPaths=front/coverage/lcov.info
             -Dsonar.verbose=true
 
   push-docker-images:
