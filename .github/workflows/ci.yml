@@ -76,6 +76,15 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Prepare frontend coverage reports for SonarCloud
+        run: |
+          echo "Preparing frontend coverage reports..."
+          if [ -f "front/coverage/bobapp/lcov.info" ]; then
+            echo "Found LCOV in front/coverage/bobapp/, copying to front/coverage/"
+            cp -f front/coverage/bobapp/lcov.info front/coverage/
+            echo "Copied lcov.info to front/coverage/lcov.info"
+          fi
+          
       - name: SonarCloud Scan Frontend
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         with:
