@@ -48,36 +48,13 @@ jobs:
           cache: 'npm'
           cache-dependency-path: front/package-lock.json
 
-      - name: Build and test frontend (with LCOV)
+      - name: Build and test frontend
         run: |
           cd front
           npm ci
           npm run build --if-present
           npm test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
           echo "Frontend tests completed"
-          ls -la coverage/
-          find coverage -name "lcov.info" | xargs ls -la || echo "Cannot find LCOV reports"
-          # Angular sometimes puts reports in a subfolder named after the project
-          if [ -f "coverage/bobapp/lcov.info" ]; then
-            echo "LCOV report found in coverage/bobapp/"
-            cp -f coverage/bobapp/lcov.info coverage/
-            cp -f coverage/bobapp/lcov.info .
-          elif [ -f "coverage/lcov.info" ]; then
-            echo "LCOV report found in coverage/"
-            cp -f coverage/lcov.info .
-          else
-            echo "Searching for lcov.info file..."
-            LCOV_FILE=$(find . -name "lcov.info" | head -n 1)
-            if [ -n "$LCOV_FILE" ]; then
-              echo "Found LCOV report at: $LCOV_FILE"
-              mkdir -p coverage
-              cp -f "$LCOV_FILE" coverage/
-              cp -f "$LCOV_FILE" .
-            else
-              echo "ERROR: No LCOV report found anywhere!"
-              exit 1
-            fi
-          fi
 
       # Archive reports
       - name: Archive test results
@@ -90,53 +67,6 @@ jobs:
             front/coverage/
           retention-days: 5
           if-no-files-found: ignore
-
-      - name: Debug coverage reports
-        run: |
-          echo "Checking coverage reports..."
-          [ -f "back/target/site/jacoco/jacoco.xml" ] && echo "Backend coverage report exists" || echo "Backend coverage report missing"
-          [ -f "front/coverage/lcov.info" ] && echo "Frontend coverage report exists" || echo "Frontend coverage report missing"
-          
-      - name: Prepare for SonarCloud scan
-        run: |
-          echo "Ensuring coverage reports are ready for SonarCloud..."
-          # Verify frontend coverage files
-          echo "Frontend coverage report location:"
-          find front -name "lcov.info" | xargs ls -la || echo "No LCOV reports found in standard locations"
-          
-          # Check all possible locations where Angular might generate the coverage report
-          if [ -f "front/coverage/bobapp/lcov.info" ]; then
-            echo "Found LCOV in front/coverage/bobapp/"
-            cp -f front/coverage/bobapp/lcov.info front/coverage/
-            cp -f front/coverage/bobapp/lcov.info .
-          elif [ -f "front/coverage/lcov.info" ]; then
-            echo "Found LCOV in front/coverage/"
-            cp -f front/coverage/lcov.info .
-          fi
-          
-          # Final check and search
-          if [ ! -f "lcov.info" ]; then
-            echo "Searching for any lcov.info file..."
-            LCOV_FILE=$(find . -name "lcov.info" | head -n 1)
-            if [ -n "$LCOV_FILE" ]; then
-              echo "Found LCOV at: $LCOV_FILE - making copies"
-              mkdir -p front/coverage
-              cp -f "$LCOV_FILE" front/coverage/
-              cp -f "$LCOV_FILE" .
-            fi
-          fi
-          
-          # Verify what we've got
-          echo "Final LCOV locations:"
-          find . -name "lcov.info" | sort
-
-      - name: Fix lcov path for Angular
-        run: |
-          echo "Checking and copying lcov.info from Angular"
-          if [ -f "front/coverage/bobapp/lcov.info" ]; then
-            cp front/coverage/bobapp/lcov.info front/coverage/lcov.info
-            echo "Copied lcov.info to front/coverage/lcov.info"
-          fi
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
@@ -166,16 +96,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build backend image
-        run: |
-          docker build -t theonaulet/bobapp-back:latest ./back
-
-      - name: Build frontend image
-        run: |
-          docker build -t theonaulet/bobapp-front:latest ./front
-
-      - name: Push backend image
-        run: docker push theonaulet/bobapp-back:latest
-
-      - name: Push frontend image
-        run: docker push theonaulet/bobapp-front:latest
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Build and push backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./back
+          push: true
+          tags: theonaulet/bobapp-back:latest
+          
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./front
+          push: true
+          tags: theonaulet/bobapp-front:latest
