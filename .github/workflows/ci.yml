@@ -68,16 +68,21 @@ jobs:
           retention-days: 5
           if-no-files-found: ignore
 
-      - name: SonarCloud Scan
+      - name: SonarCloud Scan Backend
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         with:
-          args: >
-            -Dsonar.organization=theonaulet
-            -Dsonar.projectKey=TheoNaulet_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-            -Dsonar.projectName=Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
-            -Dsonar.typescript.lcov.reportPaths=front/coverage/lcov.info
-            -Dsonar.verbose=true
+          projectBaseDir: ./back
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: SonarCloud Scan Frontend
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        with:
+          projectBaseDir: ./front
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   push-docker-images:
     needs: build-and-test
