@@ -18,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Récupère tout l'historique pour les analyses SonarCloud
+          fetch-depth: 0
 
       # Backend
       - name: Set up JDK 11
@@ -56,7 +56,7 @@ jobs:
           npm test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
           echo "Frontend tests completed"
 
-      # Archive reports
+      # Archive test reports
       - name: Archive test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -68,6 +68,7 @@ jobs:
           retention-days: 5
           if-no-files-found: ignore
 
+      # Sonar Backend
       - name: SonarCloud Scan Backend
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         with:
@@ -76,15 +77,27 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Préparation et vérification couverture frontend
       - name: Prepare frontend coverage reports for SonarCloud
         run: |
-          echo "Preparing frontend coverage reports..."
-          if [ -f "front/coverage/bobapp/lcov.info" ]; then
-            echo "Found LCOV in front/coverage/bobapp/, copying to front/coverage/"
-            cp -f front/coverage/bobapp/lcov.info front/coverage/
-            echo "Copied lcov.info to front/coverage/lcov.info"
+          echo "==> Preparing coverage file"
+          mkdir -p front/coverage
+          if [ -f front/coverage/bobapp/lcov.info ]; then
+            cp -v front/coverage/bobapp/lcov.info front/coverage/lcov.info
+            echo "✅ Coverage file copied successfully."
+          else
+            echo "❌ ERROR: Coverage report not found at front/coverage/bobapp/lcov.info"
+            exit 1
           fi
-          
+
+      - name: Debug frontend coverage presence
+        run: |
+          echo "==> Listing front/coverage content"
+          ls -la front/coverage/
+          echo "==> Preview of lcov.info:"
+          cat front/coverage/lcov.info | head -n 20
+
+      # Sonar Frontend
       - name: SonarCloud Scan Frontend
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         with:
@@ -102,7 +115,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Récupère tout l'historique
+          fetch-depth: 0
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -112,14 +125,14 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
+
       - name: Build and push backend image
         uses: docker/build-push-action@v4
         with:
           context: ./back
           push: true
           tags: theonaulet/bobapp-back:latest
-          
+
       - name: Build and push frontend image
         uses: docker/build-push-action@v4
         with:
