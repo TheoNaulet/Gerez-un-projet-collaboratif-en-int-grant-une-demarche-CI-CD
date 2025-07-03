@@ -77,25 +77,16 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Préparation et vérification couverture frontend
+      # Préparation de la couverture frontend
       - name: Prepare frontend coverage reports for SonarCloud
         run: |
-          echo "==> Preparing coverage file"
           mkdir -p front/coverage
           if [ -f front/coverage/bobapp/lcov.info ]; then
-            cp -v front/coverage/bobapp/lcov.info front/coverage/lcov.info
-            echo "✅ Coverage file copied successfully."
+            cp front/coverage/bobapp/lcov.info front/coverage/lcov.info
           else
-            echo "❌ ERROR: Coverage report not found at front/coverage/bobapp/lcov.info"
+            echo "Error: Coverage report not found"
             exit 1
           fi
-
-      - name: Debug frontend coverage presence
-        run: |
-          echo "==> Listing front/coverage content"
-          ls -la front/coverage/
-          echo "==> Preview of lcov.info:"
-          cat front/coverage/lcov.info | head -n 20
 
       # Sonar Frontend
       - name: SonarCloud Scan Frontend
